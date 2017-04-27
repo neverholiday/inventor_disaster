@@ -43,7 +43,6 @@ try:
         del MIFAREReader1
 
         #elif io == '2':
-        sleep(2)
             
         MIFAREReader2 = MFRC522.MFRC522(dev='/dev/spidev1.2')
 
