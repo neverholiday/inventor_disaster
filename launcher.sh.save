@@ -1,0 +1,7 @@
+#!/bin/sh
+# launcher.sh
+
+cd /
+cd ~/inventor
+python disaster.py
+

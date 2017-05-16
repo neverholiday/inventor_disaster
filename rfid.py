@@ -1,6 +1,8 @@
 from time import sleep
 import MFRC522
 
+Debug = False
+
 class Rfid(object):
 	"""docstring for Rfid"""
 	# dict_rfid = {'1':0,'2':0,'3':0,'4':0,'5':0,'6':0,'7':0,'8':0} ---> rfid_show 
@@ -24,24 +26,27 @@ class Rfid(object):
 	def set_card(self):
 
                 state_set_card = 0
-
+        
 		temp = self.disaster.keys() + self.place.keys()
 
 		for i in range(len(temp)):
-                        print 'input '+temp[i]+ ' card'
+                        if Debug is True:
+                                print 'input '+temp[i]+ ' card'
                         while state_set_card == 0:
                                 MIFAREReader1 = MFRC522.MFRC522(dev='/dev/spidev0.0')
                                 (status1,TagType1) = MIFAREReader1.MFRC522_Request(MIFAREReader1.PICC_REQIDL)
                                 (status1,self.uid_for_set_card) = MIFAREReader1.MFRC522_Anticoll()
                                 if status1 == MIFAREReader1.MI_OK:
-                                        print "Card1 read UID: "+str(self.uid_for_set_card[0])+","+str(self.uid_for_set_card[1])+","+str(self.uid_for_set_card[2])+","+str(self.uid_for_set_card[3])
+                                        if Debug is True:
+                                                print "Card1 read UID: "+str(self.uid_for_set_card[0])+","+str(self.uid_for_set_card[1])+","+str(self.uid_for_set_card[2])+","+str(self.uid_for_set_card[3])
                                         keyboard = str(self.uid_for_set_card[0]) + str(self.uid_for_set_card[1]) + str(self.uid_for_set_card[2]) + str(self.uid_for_set_card[3])
                                         state_set_card = 1
                                 del MIFAREReader1
 			
 			self.txt = self.txt + keyboard
 			self.txt = self.txt + '/'
-			print 'wait a second , please move your card out!'
+                        if Debug is True:
+                                print 'wait a second , please move your card out!'
 			sleep(1)
 			state_set_card = 0
 		self.write_file()
@@ -88,7 +93,6 @@ class Rfid(object):
 
                 if status1 == MIFAREReader1.MI_OK:
 
-                        #print "Card1 read UID: "+str(self.uid1[0])+","+str(self.uid1[1])+","+str(self.uid1[2])+","+str(self.uid1[3])
                         self.tkey1 = str(self.uid1[0]) + str(self.uid1[1]) + str(self.uid1[2]) + str(self.uid1[3])
                 else :
                         self.tkey1 = None
@@ -102,7 +106,6 @@ class Rfid(object):
                 (status2,self.uid2) = MIFAREReader2.MFRC522_Anticoll()
 
                 if status2 == MIFAREReader2.MI_OK:
-                        #print "Card2 read UID: "+str(self.uid2[0])+","+str(self.uid2[1])+","+str(self.uid2[2])+","+str(self.uid2[3])
                         self.tkey2 = str(self.uid2[0]) + str(self.uid2[1]) + str(self.uid2[2]) + str(self.uid2[3])
 
                 else :
@@ -127,8 +130,9 @@ class Rfid(object):
                 elif self.tkey1 is not None or self.tkey2 is not None:
                         self.disaster_default = self.disaster[self.tkey1]
                         self.place_default = self.place[self.tkey2]
-                        
-                print str(self.disaster_default) + '||' + str(self.place_default)
+
+                if Debug is True:
+                        print str(self.disaster_default) + '||' + str(self.place_default)
 		
 
 		if self.disaster_default is None and self.place_default is None:
@@ -185,8 +189,10 @@ class Rfid(object):
 	def check_video(self,result):
 		if result == 11: # fire forest
                         return 3
+                elif result ==14: #tsunami shore
+                        return 6
                 elif result == 13: # tsunami city
-                        return 6 
+                        return 8
                 elif result == 17: # storm city
                         return 1
                 elif result == 18: # storm coast
@@ -198,14 +204,9 @@ class Rfid(object):
                 elif result == 21: # eq city
                         return 2
                 elif result == 22: # eq shore
-                        return 6
+                        return 10
+                elif result == 15 or result == 23: # tsunami forest And earth forest
+                        return 9
                 else:
                         return 0
 		 
-'''
-a = Rfid()
-a.disaster_place()
-while True:
-        b = a.interface_rfid()
-        print b
-'''
